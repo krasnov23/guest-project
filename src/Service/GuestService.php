@@ -41,7 +41,7 @@ class GuestService
         }
 
         $name = trim($requestBodyAsArray['name']) !== "" ? $requestBodyAsArray['name'] : null;
-        $lastname = trim($requestBodyAsArray['name']) !== "" ? $requestBodyAsArray['lastname']: null;
+        $lastname = trim($requestBodyAsArray['lastname']) !== "" ? $requestBodyAsArray['lastname']: null;
         $phoneNumber = $requestBodyAsArray['phoneNumber'];
         $email = null;
         $country = null;
@@ -54,11 +54,6 @@ class GuestService
         if (array_key_exists('email',$requestBodyAsArray))
         {
             $email = $requestBodyAsArray['email'];
-        }
-
-        if (array_key_exists('country',$requestBodyAsArray))
-        {
-            $country = $requestBodyAsArray['country'];
         }
 
         $phoneUtil = PhoneNumberUtil::getInstance();
@@ -230,11 +225,13 @@ class GuestService
 
         if (array_key_exists('newPhoneNumber',$requestBodyAsArray))
         {
+
             $findGuest = $this->guestRepository->findBy(['phone' => $requestBodyAsArray['newPhoneNumber']]);
 
             $json = $this->serializer->serialize($findGuest, 'json', ['groups' => ['findGuest']]);
 
             return new JsonResponse($json,200,[],true);
+
         }
 
         $findGuest = $this->guestRepository->findBy(['phone' => $requestBodyAsArray['currentPhoneNumber']]);
@@ -254,7 +251,7 @@ class GuestService
             return new JsonResponse(['ошибка'=> 'не указан параметр email'],400);
         }
 
-        $guest = $this->guestRepository->findBy(['email' => $email]);
+        $guest = $this->guestRepository->findOneBy(['email' => $email]);
 
         if (!$guest)
         {
@@ -277,7 +274,7 @@ class GuestService
 
         $phoneNumber = "+" . $phoneNumber;
 
-        $guest = $this->guestRepository->findBy(['phone' => $phoneNumber]);
+        $guest = $this->guestRepository->findOneBy(['phone' => $phoneNumber]);
 
         if (!$guest)
         {
@@ -321,8 +318,7 @@ class GuestService
 
         if (!$guest)
         {
-            return new JsonResponse(['ошибка'=> 'данного номера нет в базе данных либо 
-            введен некорректный параметр запроса (введите параметр без +)'],404);
+            return new JsonResponse(['ошибка'=> 'данного номера нет в базе данных либо введен некорректный параметр запроса (введите параметр без +)'],404);
         }
 
         $this->em->remove($guest);

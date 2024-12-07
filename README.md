@@ -3,73 +3,64 @@
 и docker compose https://docs.docker.com/compose/install/
 
 
-После чего запускаем проект
+
+## Инструкция по работе с проектом ##
+1. скачиваем проект и поднимаем докер в фоновом режиме
+
 ```
 docker compose up -d
 ```
-запуститься три контейнера - php-fpm, nginx, postgresql
-
-
-## Начинаем проект Symfony skeleton ##
-1. заходим в контейнер
-
+2. Заходим в контейнер с php
 ```
 docker exec -it php-skeleton  /bin/bash
 ```
-устанавливаем симфу
+3. устанавливаем зависимости
 ```
 composer install
 ```
-
-2. Добавляем
+4. Создаем базу данных
 ```
-composer require symfony/orm-pack
-composer require --dev symfony/maker-bundle
-composer require symfony/security-bundle
+php bin/console doctrine:database:create
 ```
-
- Добавляем в .env файл
+5. По скольку в проекте нету adminer или pgadmin для работы с 
+базой данных, подключаем ее в phpstorm
 ```
-DATABASE_URL="postgresql://usr:97y2amDpm@pg-cmf:5432/usr?serverVersion=15&charset=utf8"
-MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
+- Правый верхний угол , нажимаем Database
+- затем на кнопку "+"
+- выбираем postgresql, вводим логин пароль 
+(которые у нас в .env или docker-compose),
+указываем внешний порт бд в данном случае 5435
+- > testConnection -> OK
 ```
-
-3. Добавляем пользователя и все его миграции
+6. Накатываем миграции
 ```
-php bin/console make:user
-```
-
-4. Добавляем анотации и мессенджер
-
-
-```
-  composer require doctrine/annotations
-  composer require templates
-  composer require form validator
+php bin/console doctrine:migrations:migrate
 ```
 
-5. Создаем форму регистрации
+7. Проверяем что таблицы появились у нас в бд и
+теперь заполняем таблицы используя фикстуры
 ```
-   php bin/console make:registration-form
-   composer require symfonycasts/verify-email-bundle symfony/mailer
+php bin/console doctrine:fixtures:load
 ```
-6. Устанавливаю меснеджер
-```
-   composer require messenger
-   composer require symfony/doctrine-messenger
-```
-7. Теперь письма отправляются асинхронно
-```
-   php bin/console messenger:consume async
- ```
 
-8. Устанавливаю фронтенд
-   composer require symfony/webpack-encore-bundle
-   composer require symfony/asset
-   yarn install
-   yarn add bootsrap
-   yarn add @fortawesome/fontawesome-free
-9.  Сброс пароля
-    composer require symfonycasts/reset-password-bundle
-10. Форма логина
-    php bin/console make:auth
+8. Теперь когда фикстуры накатаны, можно делать запросы
+с помощью postman
+```
+/add-guest - параметры тела запроса name,lastname,phoneNumber,email,country
+/edit-guest - параметры тела запроса 
+currentPhoneNumber,newName,newLastName,newPhoneNumber,newEmail
+/get-guest-by-email - параметры email
+/get-guest-by-phone - параметры phone (формат 79297169752)
+/get-guest-by-id/{id} - параметры id (можно напрямую)
+/delete-guest-by-phone - параметры phone (формат 79297169752)
+/delete-guest/{id} - параметры id (можно напрямую)
+```
+
+9. Для запуска юнит тестов команда
+```
+php bin/phpunit
+```
+
+Примерное время создания данного проекта рабочие сутки с тестами вместе 2 дня.
+
+
