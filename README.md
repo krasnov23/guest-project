@@ -37,14 +37,7 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
 ```
 
-7. Проверяем что таблицы появились у нас в бд и
-теперь заполняем таблицы используя фикстуры
-```
-php bin/console doctrine:fixtures:load
-```
-
-8. Теперь когда фикстуры накатаны, можно делать запросы
-с помощью postman
+7.Теперь можно делать запросы с помощью postman
 ```
 /add-guest - параметры тела запроса name,lastname,phoneNumber,email,country
 /edit-guest - параметры тела запроса 
